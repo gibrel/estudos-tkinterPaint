@@ -103,10 +103,10 @@ class PainTk:
         self.text_options.pack(side="left")
 
         self.button_new = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_new, bd=0,
-                                    command=self.clear_canvas)
+                                    command=lambda: self.clear_canvas)
         self.button_new.pack(side="left")
         self.button_save = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_save, bd=0,
-                                     command=self.save_canvas)
+                                     command=lambda: self.save_canvas)
         self.button_save.pack(side="left")
 
         self.text_brushes = tk.Label(self.top_menu_bar, text="Brushes:", fg="white", bg="#3b3b3b", padx=10)
@@ -200,8 +200,8 @@ class PainTk:
 
         # key binds
         self.drawing_area.bind("<B1-Motion>", self.drawn)
-        self.window.bind("<Control-s>", self.save_canvas)
-        self.window.bind("<Control-d>", self.clear_canvas)
+        self.window.bind("<Control-s>", self.save_canvas_envelop)
+        self.window.bind("<Control-d>", self.clear_canvas_envelop)
 
         self.window.mainloop()
 
@@ -226,10 +226,16 @@ class PainTk:
         if isinstance(brush, Brushes):
             self.chosen_brush = brush
 
-    def clear_canvas(self, event):
+    def clear_canvas_envelop(self, event):
+        self.clear_canvas()
+
+    def clear_canvas(self):
         self.drawing_area.delete("all")
 
-    def save_canvas(self, event):
+    def save_canvas_envelop(self, event):
+        self.save_canvas()
+
+    def save_canvas(self):
         self.drawing_area.postscript(file="image.eps")
         img = Image.open("image.eps")
         img.save("image.png", "png")
