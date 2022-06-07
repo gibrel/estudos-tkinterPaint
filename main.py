@@ -1,6 +1,8 @@
 import tkinter as tk
 from enum import Enum, auto
-import pyscreenshot
+from tkinter import colorchooser
+from PIL import Image
+import os
 
 list_colours = (
     "snow", "ghost white", "white smoke", "gainsboro", "floral white", "old lace", "linen", "antique white",
@@ -60,13 +62,12 @@ list_colours = (
     "gray64", "gray65", "gray66", "gray67", "gray68", "gray69", "gray70", "gray71", "gray72", "gray73", "gray74",
     "gray75", "gray76", "gray77", "gray78", "gray79", "gray80", "gray81", "gray82", "gray83", "gray84", "gray85",
     "gray86", "gray87", "gray88", "gray89", "gray90", "gray91", "gray92", "gray93", "gray94", "gray95", "gray97",
-    "gray98", "gray99", "white", "white", "white", "white")
+    "gray98", "gray99", "white", "white", "white", "black")
 
 
 class Brushes(Enum):
     OVAL = auto()
     LINE = auto()
-    SQUARE = auto()
     ERASER = auto()
 
 
@@ -85,11 +86,18 @@ class PainTk:
         self.img_square = tk.PhotoImage(file="icons/square.png")
         self.img_eraser = tk.PhotoImage(file="icons/eraser.png")
 
-        self.chosen_colour = "black"
+        self.chosen_colour = list_colours[-1]
         self.chosen_brush = Brushes.OVAL
 
         self.top_menu_bar = tk.Frame(self.window, bg="#3b3b3b", height=50, padx=5)
         self.top_menu_bar.pack(fill="x")
+
+        self.text_chosen_colour = tk.Label(self.top_menu_bar, text="Select Colour:", fg="white", bg="#3b3b3b", padx=10)
+        self.text_chosen_colour.pack(side="left")
+
+        self.button_chosen_colour = tk.Button(self.top_menu_bar, image=self.img_square, bd=0,
+                                              command=self.select_colour_palette)
+        self.button_chosen_colour.pack(side="left")
 
         self.text_options = tk.Label(self.top_menu_bar, text="Options:", fg="white", bg="#3b3b3b", padx=10)
         self.text_options.pack(side="left")
@@ -110,9 +118,6 @@ class PainTk:
         self.button_oval = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_oval, bd=0,
                                      command=lambda: self.select_brush(Brushes.OVAL))
         self.button_oval.pack(side="left")
-        self.button_square = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_square, bd=0,
-                                       command=lambda: self.select_brush(Brushes.SQUARE))
-        self.button_square.pack(side="left")
         self.button_eraser = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_eraser, bd=0,
                                        command=lambda: self.select_brush(Brushes.ERASER))
         self.button_eraser.pack(side="left")
@@ -127,7 +132,6 @@ class PainTk:
 
         self.drawing_area = tk.Canvas(self.window)  # , height=310)
         self.drawing_area.pack(fill="both")
-        self.drawing_area.bind("<B1-Motion>", self.drawn)
         self.default_bg = self.drawing_area.cget('bg')
 
         self.bottom_menu_bar = tk.Frame(self.window, bg="#3b3b3b", height=50, padx=5)
@@ -194,6 +198,11 @@ class PainTk:
                 tk.Button(self.frame_colours_line9, bg=colour, activebackground=colour, width=2, height=1,
                           command=lambda col=colour: self.select_colour(col), bd=0).pack(side="left")
 
+        # key binds
+        self.drawing_area.bind("<B1-Motion>", self.drawn)
+        self.window.bind("<Control-s>", self.save_canvas)
+        self.window.bind("<Control-d>", self.clear_canvas)
+
         self.window.mainloop()
 
     def drawn(self, event):
@@ -204,9 +213,6 @@ class PainTk:
                                           width=self.brush_size.get())
         elif self.chosen_brush == Brushes.LINE:
             self.drawing_area.create_line(x1 - 5, y1 - 5, x2, y2, fill=self.chosen_colour, width=self.brush_size.get())
-        elif self.chosen_brush == Brushes.SQUARE:
-            self.drawing_area.create_rectangle(x1, y1, x2, y2, fill=self.chosen_colour, outline=self.chosen_colour,
-                                               width=self.brush_size.get())
         elif self.chosen_brush == Brushes.ERASER:
             self.drawing_area.create_oval(x1, y1, x2, y2, fill=self.default_bg, outline=self.default_bg,
                                           width=self.brush_size.get())
@@ -220,19 +226,19 @@ class PainTk:
         if isinstance(brush, Brushes):
             self.chosen_brush = brush
 
-    def clear_canvas(self):
+    def clear_canvas(self, event):
         self.drawing_area.delete("all")
 
-    def save_canvas(self):
-        # x_offset, x1_offset, y_offset, y1_offset = 0, 350, 0, 200
-
-        x = self.window.winfo_rootx() + self.drawing_area.winfo_x()  # + x_offset
-        y = self.window.winfo_rooty() + self.drawing_area.winfo_y()  # + y_offset
-        x1 = self.window.winfo_rootx() + self.drawing_area.winfo_width()  # + x1_offset
-        y1 = self.window.winfo_rooty() + self.drawing_area.winfo_height()  # + y1_offset
-
-        img = pyscreenshot.grab(bbox=(x, y, x1, y1))
+    def save_canvas(self, event):
+        self.drawing_area.postscript(file="image.eps")
+        img = Image.open("image.eps")
         img.save("image.png", "png")
+        img.close()
+        os.remove("image.eps")
+
+    def select_colour_palette(self):
+        color = tk.colorchooser.askcolor()
+        self.select_colour(color[1])
 
 
 PainTk()
