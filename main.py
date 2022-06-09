@@ -103,10 +103,10 @@ class PainTk:
         self.text_options.pack(side="left")
 
         self.button_new = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_new, bd=0,
-                                    command=lambda: self.clear_canvas)
+                                    command=self.clear_canvas)
         self.button_new.pack(side="left")
         self.button_save = tk.Button(self.top_menu_bar, bg="#3b3b3b", image=self.img_save, bd=0,
-                                     command=lambda: self.save_canvas)
+                                     command=self.save_canvas)
         self.button_save.pack(side="left")
 
         self.text_brushes = tk.Label(self.top_menu_bar, text="Brushes:", fg="white", bg="#3b3b3b", padx=10)
