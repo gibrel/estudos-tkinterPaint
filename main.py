@@ -255,3 +255,5 @@ class PainTk:
 
 
 PainTk()
+
+# pyinstaller main.py --onefile -n PainTk --noconsole --paths=.\venv\ --hidden-import='PIL'
