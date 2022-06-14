@@ -1,8 +1,8 @@
 import tkinter as tk
 from enum import Enum, auto
 from tkinter import colorchooser
-from PIL import Image
-import os
+from PIL import ImageGrab  # , Image
+# import os
 
 list_colours = (
     "snow", "ghost white", "white smoke", "gainsboro", "floral white", "old lace", "linen", "antique white",
@@ -236,11 +236,18 @@ class PainTk:
         self.save_canvas()
 
     def save_canvas(self):
-        self.drawing_area.postscript(file="image.eps")
-        img = Image.open("image.eps")
-        img.save("image.png", "png")
-        img.close()
-        os.remove("image.eps")
+        # self.drawing_area.postscript(file="image.eps")
+        # img = Image.open("image.eps")
+        # img.save("image.png", "png")
+        # img.close()
+        # os.remove("image.eps")
+        x = self.window.winfo_rootx() + self.drawing_area.winfo_x()
+        y = self.window.winfo_rooty() + self.drawing_area.winfo_y()
+        x1 = x + self.drawing_area.winfo_width()
+        y1 = y + self.drawing_area.winfo_height()
+        print((x, y, x1, y1))
+        print(str(self.drawing_area.winfo_width()) + " " + str(self.drawing_area.winfo_height()))
+        ImageGrab.grab().crop((x, y, x1, y1)).save("image.png")
 
     def select_colour_palette(self):
         color = tk.colorchooser.askcolor()
